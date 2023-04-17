@@ -1,16 +1,20 @@
-sed -i 's/groups$(EXEEXT) //' src/Makefile.in          &&
-
-find man -name Makefile.in -exec sed -i 's/groups\.1 / /'   {} \; &&
-find man -name Makefile.in -exec sed -i 's/getspnam\.3 / /' {} \; &&
-find man -name Makefile.in -exec sed -i 's/passwd\.5 / /'   {} \; &&
-
-sed -e 's@#ENCRYPT_METHOD DES@ENCRYPT_METHOD SHA512@' \
-    -e 's@#\(SHA_CRYPT_..._ROUNDS 5000\)@\100@'       \
-    -e 's@/var/spool/mail@/var/mail@'                 \
-    -e '/PATH=/{s@/sbin:@@;s@/bin:@@}'                \
-    -i etc/login.defs                                 &&
-
-./configure --sysconfdir=/etc               \
-            --disable-static                \
-            --with-group-name-max-length=32 &&
-make -j16
+install -v -m644 /etc/login.defs /etc/login.defs.orig &&
+for FUNCTION in FAIL_DELAY               \
+                FAILLOG_ENAB             \
+                LASTLOG_ENAB             \
+                MAIL_CHECK_ENAB          \
+                OBSCURE_CHECKS_ENAB      \
+                PORTTIME_CHECKS_ENAB     \
+                QUOTAS_ENAB              \
+                CONSOLE MOTD_FILE        \
+                FTMP_FILE NOLOGINS_FILE  \
+                ENV_HZ PASS_MIN_LEN      \
+                SU_WHEEL_ONLY            \
+                CRACKLIB_DICTPATH        \
+                PASS_CHANGE_TRIES        \
+                PASS_ALWAYS_WARN         \
+                CHFN_AUTH ENCRYPT_METHOD \
+                ENVIRON_FILE
+do
+    sed -i "s/^${FUNCTION}/# &/" /etc/login.defs
+done
